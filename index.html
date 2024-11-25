@@ -48,64 +48,66 @@
 
   <script>
     const letters = "ABCDEFGHIJKLMNOPRSTVW".split(""); // Excluding Q, X, Z, Y, U
-    const categories = [
-      "Actor (Male)", "Actor", "Famous Actor",
-      "Actress", "Famous Actress",
-      "Alcoholic Drink", "Drink",
-      "Animal", "Wild Animal", "Pet Animal",
-      "Band (Well Known)", "Famous Band",
-      "Bird", "Type of Bird",
-      "Body Part (Human)", "Body Part",
-      "Book Title", "Book", "Novel",
-      "Boy's Name", "Male Name", "Name for a Boy",
-      "Car Make", "Car Brand", "Automobile Make",
-      "Car Model", "Vehicle Model",
-      "Country", "Nation",
-      "Dog Breed", "Type of Dog",
-      "Drink", "Beverage",
-      "Food Item", "Dish", "EAT/FOOD",
-      "Electrical Item", "Electronic Device",
-      "European City", "City in Europe",
-      "Fictional Character", "Character from Fiction",
-      "Film Title", "Movie Title",
-      "Fish", "Type of Fish",
-      "Football Team", "Soccer Team",
-      "Fruit", "Type of Fruit",
-      "Girl's Name", "Female Name", "Name for a Girl",
-      "Job Title", "Occupation", "Profession",
-      "Kitchen Appliance", "Appliance",
-      "Music Artist (Female)", "Singer (Female)",
-      "Music Artist (Male)", "Singer (Male)",
-      "Musical Instrument", "Instrument",
-      "Plant or Flower", "Type of Plant", "Type of Flower",
-      "School Subject", "Academic Subject",
-      "Shop", "Retailer", "Store",
-      "Something You Eat", "Food Item",
-      "Something You Wear", "Clothing Item",
-      "Song Title", "Track Title",
-      "Sport", "Type of Sport",
-      "TV Show", "Television Show",
-      "UK City or Town", "City in the UK", "Town in the UK",
-      "Vegetable", "Type of Vegetable",
-      "Word Ending in 'ing'", "'ing' Word",
-      "3-Letter Word", "Short Word",
-      "4-Letter Word", "4-Character Word",
-      "5-Letter Word", "5-Character Word",
-      "City in Another Country", "Foreign City",
-      "Place", "Location", "Object"
+
+    // Grouping categories and their variations
+    const categoryGroups = [
+      ["Actor (Male)", "Actor", "Famous Actor"],
+      ["Actress", "Famous Actress"],
+      ["Alcoholic Drink", "Drink"],
+      ["Animal", "Wild Animal", "Pet Animal"],
+      ["Band (Well Known)", "Famous Band"],
+      ["Bird", "Type of Bird"],
+      ["Body Part (Human)", "Body Part"],
+      ["Book Title", "Book", "Novel"],
+      ["Boy's Name", "Male Name", "Name for a Boy"],
+      ["Car Make", "Car Brand", "Automobile Make"],
+      ["Car Model", "Vehicle Model"],
+      ["Country", "Nation"],
+      ["Dog Breed", "Type of Dog"],
+      ["Food Item", "Dish", "EAT/FOOD"],
+      ["Electrical Item", "Electronic Device"],
+      ["European City", "City in Europe"],
+      ["Fictional Character", "Character from Fiction"],
+      ["Film Title", "Movie Title"],
+      ["Fish", "Type of Fish"],
+      ["Football Team", "Soccer Team"],
+      ["Fruit", "Type of Fruit"],
+      ["Girl's Name", "Female Name", "Name for a Girl"],
+      ["Job Title", "Occupation", "Profession"],
+      ["Kitchen Appliance", "Appliance"],
+      ["Music Artist (Female)", "Singer (Female)"],
+      ["Music Artist (Male)", "Singer (Male)"],
+      ["Musical Instrument", "Instrument"],
+      ["Plant or Flower", "Type of Plant", "Type of Flower"],
+      ["School Subject", "Academic Subject"],
+      ["Shop", "Retailer", "Store"],
+      ["Something You Eat", "Food Item"],
+      ["Something You Wear", "Clothing Item"],
+      ["Song Title", "Track Title"],
+      ["Sport", "Type of Sport"],
+      ["TV Show", "Television Show"],
+      ["UK City or Town", "City in the UK", "Town in the UK"],
+      ["Vegetable", "Type of Vegetable"],
+      ["Word Ending in 'ing'", "'ing' Word"],
+      ["3-Letter Word", "Short Word"],
+      ["4-Letter Word", "4-Character Word"],
+      ["5-Letter Word", "5-Character Word"],
+      ["City in Another Country", "Foreign City"],
+      ["Place", "Location", "Object"]
     ];
 
-    let availableCategories = [...categories]; // Clone the categories list
+    let availableCategories = [...categoryGroups]; // Clone category groups
     let score = 0;
     let timerInterval;
     let timeLeft = 30;
 
     const randomLetter = () => letters[Math.floor(Math.random() * letters.length)];
     const randomCategory = () => {
-      // Pick a random category and remove it from the available list
-      const index = Math.floor(Math.random() * availableCategories.length);
-      const category = availableCategories[index];
-      availableCategories.splice(index, 1); // Remove selected category
+      // Pick a random group and random variation from it
+      const groupIndex = Math.floor(Math.random() * availableCategories.length);
+      const categoryGroup = availableCategories[groupIndex];
+      const category = categoryGroup[Math.floor(Math.random() * categoryGroup.length)];
+      availableCategories.splice(groupIndex, 1); // Remove the entire group
       return category;
     };
 
@@ -135,7 +137,7 @@
 
     document.getElementById("startGame").addEventListener("click", () => {
       score = 0;
-      availableCategories = [...categories]; // Reset available categories
+      availableCategories = [...categoryGroups]; // Reset available categories
       document.getElementById("counter").textContent = `Score: ${score}`;
       document.getElementById("result").textContent = "";
       document.getElementById("nextCategory").disabled = false;
