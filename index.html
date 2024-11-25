@@ -8,11 +8,17 @@
     body {
       font-family: Arial, sans-serif;
       text-align: center;
-      margin-top: 50px;
+      margin: 0;
+      padding: 0;
     }
     .container {
       max-width: 600px;
       margin: auto;
+      min-height: 100vh; /* Ensures the container fills the screen */
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
     }
     button {
       padding: 10px 20px;
@@ -49,7 +55,6 @@
   <script>
     const letters = "ABCDEFGHIJKLMNOPRST".split(""); // Excluding Q, X, Z, Y, U, V, W
 
-    // Updated category groups based on your input
     const categoryGroups = [
       ["Actor", "Male celebrity"],
       ["Actress", "Female celebrity"],
@@ -85,7 +90,7 @@
       ["5-letter word"]
     ];
 
-    let availableCategories = [...categoryGroups]; // Clone category groups
+    let availableCategories = [...categoryGroups];
     let score = 0;
     let timerInterval;
     let timeLeft = 30;
@@ -95,14 +100,14 @@
       const groupIndex = Math.floor(Math.random() * availableCategories.length);
       const categoryGroup = availableCategories[groupIndex];
       const category = categoryGroup[Math.floor(Math.random() * categoryGroup.length)];
-      availableCategories.splice(groupIndex, 1); // Remove the group once selected
+      availableCategories.splice(groupIndex, 1);
       return category;
     };
 
     const speakText = (text) => {
       const speech = new SpeechSynthesisUtterance(text);
       speech.lang = "en-US";
-      speech.rate = 1.2; // Speed up slightly for quicker practice
+      speech.rate = 1.2;
       speech.pitch = 1;
       window.speechSynthesis.speak(speech);
     };
@@ -143,7 +148,7 @@
 
     document.getElementById("startGame").addEventListener("click", () => {
       score = 0;
-      availableCategories = [...categoryGroups]; // Reset available categories
+      availableCategories = [...categoryGroups];
       document.getElementById("counter").textContent = `Score: ${score}`;
       document.getElementById("result").textContent = "";
       document.getElementById("nextCategory").disabled = false;
