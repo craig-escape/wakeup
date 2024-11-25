@@ -99,6 +99,14 @@
       return category;
     };
 
+    const speakText = (text) => {
+      const speech = new SpeechSynthesisUtterance(text);
+      speech.lang = "en-US";
+      speech.rate = 1.2; // Speed up slightly for quicker practice
+      speech.pitch = 1;
+      window.speechSynthesis.speak(speech);
+    };
+
     const startCountdown = () => {
       const timerDisplay = document.getElementById("timer");
       timeLeft = 30;
@@ -115,30 +123,7 @@
       }, 1000);
     };
 
-    const speakText = (text) => {
-      const speech = new SpeechSynthesisUtterance(text);
-      speech.lang = "en-US";
-      speech.rate = 1.2; // Speed up slightly for quicker practice
-      speech.pitch = 1;
-      window.speechSynthesis.speak(speech);
-    };
-
-    document.getElementById("startGame").addEventListener("click", () => {
-      score = 0;
-      availableCategories = [...categoryGroups]; // Reset available categories
-      document.getElementById("counter").textContent = `Score: ${score}`;
-      document.getElementById("result").textContent = "";
-      document.getElementById("nextCategory").disabled = false;
-
-      const chosenLetter = randomLetter();
-      alert(`Your letter is: ${chosenLetter}`);
-      const category = randomCategory();
-      document.getElementById("category").textContent = `Category: ${category}`;
-      speakText(category);
-      startCountdown();
-    });
-
-    document.getElementById("nextCategory").addEventListener("click", () => {
+    const displayNextCategory = () => {
       if (timeLeft > 0) {
         score++;
         document.getElementById("counter").textContent = `Score: ${score}`;
@@ -153,6 +138,30 @@
         } else {
           document.getElementById("result").textContent = "No more categories left!";
         }
+      }
+    };
+
+    document.getElementById("startGame").addEventListener("click", () => {
+      score = 0;
+      availableCategories = [...categoryGroups]; // Reset available categories
+      document.getElementById("counter").textContent = `Score: ${score}`;
+      document.getElementById("result").textContent = "";
+      document.getElementById("nextCategory").disabled = false;
+
+      const chosenLetter = randomLetter();
+      speakText(`Your letter is ${chosenLetter}`);
+      alert(`Your letter is: ${chosenLetter}`);
+      const category = randomCategory();
+      document.getElementById("category").textContent = `Category: ${category}`;
+      speakText(category);
+      startCountdown();
+    });
+
+    document.getElementById("nextCategory").addEventListener("click", displayNextCategory);
+
+    document.body.addEventListener("click", (event) => {
+      if (event.target.id !== "startGame" && event.target.id !== "nextCategory") {
+        displayNextCategory();
       }
     });
   </script>
