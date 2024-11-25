@@ -47,53 +47,41 @@
   </div>
 
   <script>
-    const letters = "ABCDEFGHIJKLMNOPRSTVW".split(""); // Excluding Q, X, Z, Y, U
+    const letters = "ABCDEFGHIJKLMNOPRST".split(""); // Excluding Q, X, Z, Y, U, V, W
 
-    // Grouping categories and their variations
+    // Updated category groups based on your input
     const categoryGroups = [
-      ["Actor (Male)", "Actor", "Famous Actor"],
-      ["Actress", "Famous Actress"],
-      ["Alcoholic Drink", "Drink"],
-      ["Animal", "Wild Animal", "Pet Animal"],
-      ["Band (Well Known)", "Famous Band"],
-      ["Bird", "Type of Bird"],
-      ["Body Part (Human)", "Body Part"],
-      ["Book Title", "Book", "Novel"],
-      ["Boy's Name", "Male Name", "Name for a Boy"],
-      ["Car Make", "Car Brand", "Automobile Make"],
-      ["Car Model", "Vehicle Model"],
-      ["Country", "Nation"],
-      ["Dog Breed", "Type of Dog"],
-      ["Food Item", "Dish", "EAT/FOOD"],
-      ["Electrical Item", "Electronic Device"],
-      ["European City", "City in Europe"],
-      ["Fictional Character", "Character from Fiction"],
-      ["Film Title", "Movie Title"],
-      ["Fish", "Type of Fish"],
-      ["Football Team", "Soccer Team"],
-      ["Fruit", "Type of Fruit"],
-      ["Girl's Name", "Female Name", "Name for a Girl"],
-      ["Job Title", "Occupation", "Profession"],
-      ["Kitchen Appliance", "Appliance"],
-      ["Music Artist (Female)", "Singer (Female)"],
-      ["Music Artist (Male)", "Singer (Male)"],
-      ["Musical Instrument", "Instrument"],
-      ["Plant or Flower", "Type of Plant", "Type of Flower"],
-      ["School Subject", "Academic Subject"],
-      ["Shop", "Retailer", "Store"],
-      ["Something You Eat", "Food Item"],
-      ["Something You Wear", "Clothing Item"],
-      ["Song Title", "Track Title"],
-      ["Sport", "Type of Sport"],
-      ["TV Show", "Television Show"],
-      ["UK City or Town", "City in the UK", "Town in the UK"],
-      ["Vegetable", "Type of Vegetable"],
-      ["Word Ending in 'ing'", "'ing' Word"],
-      ["3-Letter Word", "Short Word"],
-      ["4-Letter Word", "4-Character Word"],
-      ["5-Letter Word", "5-Character Word"],
-      ["City in Another Country", "Foreign City"],
-      ["Place", "Location", "Object"]
+      ["Actor", "Male actor"],
+      ["Actress", "Female celebrity"],
+      ["Alcoholic drink", "An alcoholic drink"],
+      ["Animal", "A four-legged animal"],
+      ["Band", "Music band"],
+      ["Bird", "Type of bird"],
+      ["Body part", "A body part"],
+      ["Book title", "Book"],
+      ["Car make or model", "Something you drive"],
+      ["City in the UK", "A UK city"],
+      ["City outside of the UK", "Foreign city"],
+      ["Clothing item", "Something you wear", "Something worn on your top half"],
+      ["Country", "A foreign country"],
+      ["Dog breed", "A breed of dog"],
+      ["Electrical appliance", "An electrical item"],
+      ["Film", "A film or TV show"],
+      ["Food item", "Something you can eat", "Vegetarian food"],
+      ["Fruit or vegetable", "A fruit or vegetable"],
+      ["Job title", "An occupation"],
+      ["Musical instrument", "Instrument"],
+      ["Plant or flower", "Type of plant", "Type of flower"],
+      ["School subject", "A school subject"],
+      ["Shop", "A shop on a high street"],
+      ["Something you drink", "A drink"],
+      ["Song title", "A title of a song"],
+      ["Sport", "A sport or hobby"],
+      ["Sport personality", "A sports star"],
+      ["Word ending in 'ing'", "A word ending in ED"],
+      ["3-letter word", "Short word"],
+      ["4-letter word", "4-character word"],
+      ["5-letter word", "5-character word"]
     ];
 
     let availableCategories = [...categoryGroups]; // Clone category groups
@@ -103,11 +91,10 @@
 
     const randomLetter = () => letters[Math.floor(Math.random() * letters.length)];
     const randomCategory = () => {
-      // Pick a random group and random variation from it
       const groupIndex = Math.floor(Math.random() * availableCategories.length);
       const categoryGroup = availableCategories[groupIndex];
       const category = categoryGroup[Math.floor(Math.random() * categoryGroup.length)];
-      availableCategories.splice(groupIndex, 1); // Remove the entire group
+      availableCategories.splice(groupIndex, 1); // Remove the group once selected
       return category;
     };
 
