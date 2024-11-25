@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wake Up & Win Practice</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin-top: 50px;
+    }
+    .container {
+      max-width: 600px;
+      margin: auto;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      margin: 10px;
+    }
+    .timer {
+      font-size: 24px;
+      margin: 20px 0;
+      color: red;
+    }
+    .category {
+      font-size: 20px;
+      font-weight: bold;
+      margin: 20px 0;
+    }
+    .counter {
+      font-size: 18px;
+      margin: 20px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Wake Up & Win Practice</h1>
+    <button id="startGame">Start Game</button>
+    <p class="timer" id="timer">Time Left: 30s</p>
+    <p class="category" id="category">Category: </p>
+    <p class="counter" id="counter">Score: 0</p>
+    <button id="nextCategory" disabled>Next Category</button>
+    <p id="result"></p>
+  </div>
+
+  <script>
+    const letters = "ABCDEFGHIJKLMNOPRSTVW".split(""); // Excluding Q, X, Z, Y, U
+    const categories = [
+      "Actor (Male)", "Actor", "Famous Actor",
+      "Actress", "Famous Actress",
+      "Alcoholic Drink", "Drink",
+      "Animal", "Wild Animal", "Pet Animal",
+      "Band (Well Known)", "Famous Band",
+      "Bird", "Type of Bird",
+      "Body Part (Human)", "Body Part",
+      "Book Title", "Book", "Novel",
+      "Boy's Name", "Male Name", "Name for a Boy",
+      "Car Make", "Car Brand", "Automobile Make",
+      "Car Model", "Vehicle Model",
+      "Country", "Nation",
+      "Dog Breed", "Type of Dog",
+      "Drink", "Beverage",
+      "Food Item", "Dish", "EAT/FOOD",
+      "Electrical Item", "Electronic Device",
+      "European City", "City in Europe",
+      "Fictional Character", "Character from Fiction",
+      "Film Title", "Movie Title",
+      "Fish", "Type of Fish",
+      "Football Team", "Soccer Team",
+      "Fruit", "Type of Fruit",
+      "Girl's Name", "Female Name", "Name for a Girl",
+      "Job Title", "Occupation", "Profession",
+      "Kitchen Appliance", "Appliance",
+      "Music Artist (Female)", "Singer (Female)",
+      "Music Artist (Male)", "Singer (Male)",
+      "Musical Instrument", "Instrument",
+      "Plant or Flower", "Type of Plant", "Type of Flower",
+      "School Subject", "Academic Subject",
+      "Shop", "Retailer", "Store",
+      "Something You Eat", "Food Item",
+      "Something You Wear", "Clothing Item",
+      "Song Title", "Track Title",
+      "Sport", "Type of Sport",
+      "TV Show", "Television Show",
+      "UK City or Town", "City in the UK", "Town in the UK",
+      "Vegetable", "Type of Vegetable",
+      "Word Ending in 'ing'", "'ing' Word",
+      "3-Letter Word", "Short Word",
+      "4-Letter Word", "4-Character Word",
+      "5-Letter Word", "5-Character Word",
+      "City in Another Country", "Foreign City",
+      "Place", "Location", "Object"
+    ];
+
+    let availableCategories = [...categories]; // Clone the categories list
+    let score = 0;
+    let timerInterval;
+    let timeLeft = 30;
+
+    const randomLetter = () => letters[Math.floor(Math.random() * letters.length)];
+    const randomCategory = () => {
+      // Pick a random category and remove it from the available list
+      const index = Math.floor(Math.random() * availableCategories.length);
+      const category = availableCategories[index];
+      availableCategories.splice(index, 1); // Remove selected category
+      return category;
+    };
+
+    const startCountdown = () => {
+      const timerDisplay = document.getElementById("timer");
+      timeLeft = 30;
+      timerDisplay.textContent = `Time Left: ${timeLeft}s`;
+
+      timerInterval = setInterval(() => {
+        timeLeft--;
+        timerDisplay.textContent = `Time Left: ${timeLeft}s`;
+        if (timeLeft <= 0) {
+          clearInterval(timerInterval);
+          document.getElementById("nextCategory").disabled = true;
+          document.getElementById("result").textContent = "Time's up! Try again.";
+        }
+      }, 1000);
+    };
+
+    const speakText = (text) => {
+      const speech = new SpeechSynthesisUtterance(text);
+      speech.lang = "en-US";
+      speech.rate = 1.2; // Speed up slightly for quicker practice
+      speech.pitch = 1;
+      window.speechSynthesis.speak(speech);
+    };
+
+    document.getElementById("startGame").addEventListener("click", () => {
+      score = 0;
+      availableCategories = [...categories]; // Reset available categories
+      document.getElementById("counter").textContent = `Score: ${score}`;
+      document.getElementById("result").textContent = "";
+      document.getElementById("nextCategory").disabled = false;
+
+      const chosenLetter = randomLetter();
+      alert(`Your letter is: ${chosenLetter}`);
+      const category = randomCategory();
+      document.getElementById("category").textContent = `Category: ${category}`;
+      speakText(category);
+      startCountdown();
+    });
+
+    document.getElementById("nextCategory").addEventListener("click", () => {
+      if (timeLeft > 0) {
+        score++;
+        document.getElementById("counter").textContent = `Score: ${score}`;
+        if (score === 10) {
+          clearInterval(timerInterval);
+          document.getElementById("nextCategory").disabled = true;
+          document.getElementById("result").textContent = "Congratulations, you won!";
+        } else if (availableCategories.length > 0) {
+          const category = randomCategory();
+          document.getElementById("category").textContent = `Category: ${category}`;
+          speakText(category);
+        } else {
+          document.getElementById("result").textContent = "No more categories left!";
+        }
+      }
+    });
+  </script>
+</body>
+</html>
