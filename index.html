@@ -97,7 +97,26 @@
     let timerInterval;
     let timeLeft = 30;
 
-    const buzzer = new Audio("https://www.soundjay.com/button/beep-07.wav"); // Buzzer sound
+    // Generate buzzer sound using Web Audio API
+    const playBuzzer = () => {
+      const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+
+      oscillator.type = "square"; // Buzzer-like sound
+      oscillator.frequency.setValueAtTime(440, audioContext.currentTime); // Frequency in Hz
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+
+      gainNode.gain.setValueAtTime(0.5, audioContext.currentTime); // Set volume
+      oscillator.start();
+
+      // Stop after 0.5 seconds
+      setTimeout(() => {
+        oscillator.stop();
+        audioContext.close();
+      }, 500);
+    };
 
     const randomLetter = () => letters[Math.floor(Math.random() * letters.length)];
     const randomCategory = () => {
@@ -127,7 +146,7 @@
 
         if (timeLeft <= 0) {
           clearInterval(timerInterval);
-          buzzer.play(); // Play the buzzer sound
+          playBuzzer(); // Play the buzzer sound
           document.getElementById("nextCategory").disabled = true; // Disable "Next Category"
           document.getElementById("result").textContent = "Time's up! Try again.";
         }
