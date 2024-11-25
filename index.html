@@ -30,7 +30,7 @@
       margin: 20px 0;
       color: red;
     }
-    .category {
+    .category, .letter {
       font-size: 20px;
       font-weight: bold;
       margin: 20px 0;
@@ -44,7 +44,9 @@
 <body>
   <div class="container">
     <h1>Wake Up & Win Practice</h1>
-    <button id="startGame">Start Game</button>
+    <button id="pickLetter">Pick Letter</button>
+    <p class="letter" id="letter">Letter: </p>
+    <button id="startTimer" disabled>Start Timer</button>
     <p class="timer" id="timer">Time Left: 30s</p>
     <p class="category" id="category">Category: </p>
     <p class="counter" id="counter">Score: 0</p>
@@ -95,6 +97,8 @@
     let timerInterval;
     let timeLeft = 30;
 
+    const buzzer = new Audio("https://www.soundjay.com/button/beep-07.wav"); // Buzzer sound
+
     const randomLetter = () => letters[Math.floor(Math.random() * letters.length)];
     const randomCategory = () => {
       const groupIndex = Math.floor(Math.random() * availableCategories.length);
@@ -112,12 +116,6 @@
       window.speechSynthesis.speak(speech);
     };
 
-// Ensure voices are loaded before using them
-window.speechSynthesis.onvoiceschanged = () => {
-  console.log("British voice is now available if supported by the device.");
-};
-
-
     const startCountdown = () => {
       const timerDisplay = document.getElementById("timer");
       timeLeft = 30;
@@ -126,9 +124,11 @@ window.speechSynthesis.onvoiceschanged = () => {
       timerInterval = setInterval(() => {
         timeLeft--;
         timerDisplay.textContent = `Time Left: ${timeLeft}s`;
+
         if (timeLeft <= 0) {
           clearInterval(timerInterval);
-          document.getElementById("nextCategory").disabled = true;
+          buzzer.play(); // Play the buzzer sound
+          document.getElementById("nextCategory").disabled = true; // Disable "Next Category"
           document.getElementById("result").textContent = "Time's up! Try again.";
         }
       }, 1000);
@@ -152,16 +152,20 @@ window.speechSynthesis.onvoiceschanged = () => {
       }
     };
 
-    document.getElementById("startGame").addEventListener("click", () => {
-      score = 0;
+    document.getElementById("pickLetter").addEventListener("click", () => {
+      const chosenLetter = randomLetter();
+      document.getElementById("letter").textContent = `Letter: ${chosenLetter}`;
+      speakText(`Your letter is ${chosenLetter}`);
+      document.getElementById("startTimer").disabled = false; // Enable the start timer button
+    });
+
+    document.getElementById("startTimer").addEventListener("click", () => {
       availableCategories = [...categoryGroups];
+      score = 0;
       document.getElementById("counter").textContent = `Score: ${score}`;
       document.getElementById("result").textContent = "";
       document.getElementById("nextCategory").disabled = false;
 
-      const chosenLetter = randomLetter();
-      speakText(`Your letter is ${chosenLetter}`);
-      alert(`Your letter is: ${chosenLetter}`);
       const category = randomCategory();
       document.getElementById("category").textContent = `Category: ${category}`;
       speakText(category);
@@ -171,7 +175,7 @@ window.speechSynthesis.onvoiceschanged = () => {
     document.getElementById("nextCategory").addEventListener("click", displayNextCategory);
 
     document.body.addEventListener("click", (event) => {
-      if (event.target.id !== "startGame" && event.target.id !== "nextCategory") {
+      if (event.target.id !== "pickLetter" && event.target.id !== "startTimer" && event.target.id !== "nextCategory") {
         displayNextCategory();
       }
     });
