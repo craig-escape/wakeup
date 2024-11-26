@@ -94,17 +94,43 @@
   <script>
     const letters = "ABCDEFGHIJKLMNOPRST".split("");
     const categoryGroups = [
-      ["Actor", "Male celebrity"],
+    ["Actor", "Male celebrity"],
       ["Actress", "Female celebrity"],
       ["Musical artist", "Female singer", "Male singer"],
-      ["Alcoholic drink", "Drink"],
+      ["Alcoholic drink", "An alcoholic drink", "Something you drink", "Drink", "Non-alcoholic drink"],
       ["Animal", "A four-legged animal"],
       ["Band", "Famous band"],
       ["Boys name", "Girls name"],
       ["Bird", "Type of bird"],
       ["Body part", "A body part"],
       ["Book title", "Book"],
-      ["Sport", "A sport or hobby"]
+      ["Car make or model"],
+      ["City in the UK", "A UK city"],
+      ["City outside of the UK", "Foreign city", "European city"],
+      ["Clothing item", "Something you wear"],
+      ["Country", "A foreign country"],
+      ["Dog breed", "A breed of dog"],
+      ["Electrical appliance", "An electrical item", "Kitchen appliance"],
+      ["Film", "Movie title"],
+      ["Fish", "Type of fish"],
+      ["Fictional character", "Cartoon character"],
+      ["Food item", "Something you eat", "Vegetarian food"],
+      ["Football team"],
+      ["Fruit", "Fruit or vegetable", "A fruit or vegetable", "Fruit", "Vegetable"],
+      ["Job title", "An occupation"],
+      ["Language", "Foreign Language"],
+      ["Musical instrument", "Instrument"],
+      ["Plant or flower", "Type of plant", "Type of flower"],
+      ["School subject", "A school subject"],
+      ["Shop", "A shop on a high street"],
+      ["Song title", "A title of a song"],
+      ["Sport", "A sport or hobby"],
+      ["Sport personality", "A sports star"],
+      ["TV Show"],
+      ["Word ending in 'ing'", "A word ending in E D", "Word ending in L Y"],
+      ["3-letter word"],
+      ["4-letter word"],
+      ["5-letter word"]
     ];
 
     let availableCategories = [...categoryGroups];
@@ -126,12 +152,12 @@
       const oscillator = audioContext.createOscillator();
       const gainNode = audioContext.createGain();
 
-      oscillator.type = "square";
-      oscillator.frequency.setValueAtTime(440, audioContext.currentTime);
+      oscillator.type = "sawtooth"; // Buzzer-like sound
+      oscillator.frequency.setValueAtTime(440, audioContext.currentTime); // Frequency in Hz
       oscillator.connect(gainNode);
       gainNode.connect(audioContext.destination);
 
-      gainNode.gain.setValueAtTime(0.5, audioContext.currentTime);
+      gainNode.gain.setValueAtTime(0.5, audioContext.currentTime); // Set volume
       oscillator.start();
       setTimeout(() => {
         oscillator.stop();
