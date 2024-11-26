@@ -39,24 +39,51 @@
       font-size: 18px;
       margin: 20px 0;
     }
+    #instructions {
+      font-size: 14px;
+      color: gray;
+      margin-top: 20px;
+    }
+    .confetti {
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 10;
+    }
+    .confetti-piece {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      background: #ff0;
+      animation: fall linear infinite;
+    }
+    @keyframes fall {
+      0% { transform: translateY(-50px) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+    }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>Wake Up & Win Practice</h1>
-    <button id="pickLetter">Pick Letter</button>
+    <div>
+      <button id="pickLetter">Pick Letter</button>
+      <button id="startTimer" disabled>Start Timer</button>
+    </div>
     <p class="letter" id="letter">Letter: </p>
-    <button id="startTimer" disabled>Start Timer</button>
     <p class="timer" id="timer">Time Left: 30s</p>
     <p class="category" id="category">Category: </p>
     <p class="counter" id="counter">Score: 0</p>
     <button id="nextCategory" disabled>Next Category</button>
     <p id="result"></p>
+    <p id="instructions">Tap anywhere below to move to the next category!</p>
   </div>
 
-  <script>
-    const letters = "ABCDEFGHIJKLMNOPRST".split(""); // Excluding Q, X, Z, Y, U, V, W
+  <div class="confetti" id="confetti"></div>
 
+  <script>
+    const letters = "ABCDEFGHIJKLMNOPRST".split("");
     const categoryGroups = [
       ["Actor", "Male celebrity"],
       ["Actress", "Female celebrity"],
@@ -102,21 +129,19 @@
     let timerInterval;
     let timeLeft = 30;
 
-    // Generate buzzer sound using Web Audio API
     const playBuzzer = () => {
       const audioContext = new (window.AudioContext || window.webkitAudioContext)();
       const oscillator = audioContext.createOscillator();
       const gainNode = audioContext.createGain();
 
-      oscillator.type = "square"; // Buzzer-like sound
-      oscillator.frequency.setValueAtTime(440, audioContext.currentTime); // Frequency in Hz
+      oscillator.type = "square";
+      oscillator.frequency.setValueAtTime(440, audioContext.currentTime);
       oscillator.connect(gainNode);
       gainNode.connect(audioContext.destination);
 
-      gainNode.gain.setValueAtTime(0.5, audioContext.currentTime); // Set volume
+      gainNode.gain.setValueAtTime(0.5, audioContext.currentTime);
       oscillator.start();
 
-      // Stop after 0.5 seconds
       setTimeout(() => {
         oscillator.stop();
         audioContext.close();
@@ -151,11 +176,30 @@
 
         if (timeLeft <= 0) {
           clearInterval(timerInterval);
-          playBuzzer(); // Play the buzzer sound
-          document.getElementById("nextCategory").disabled = true; // Disable "Next Category"
+          playBuzzer();
+          document.getElementById("nextCategory").disabled = true;
           document.getElementById("result").textContent = "Time's up! Try again.";
+          addResetButton();
         }
       }, 1000);
+    };
+
+    const addResetButton = () => {
+      const resetButton = document.createElement("button");
+      resetButton.textContent = "Try Again";
+      resetButton.addEventListener("click", () => location.reload());
+      document.body.appendChild(resetButton);
+    };
+
+    const displayConfetti = () => {
+      const confettiContainer = document.getElementById("confetti");
+      for (let i = 0; i < 100; i++) {
+        const piece = document.createElement("div");
+        piece.className = "confetti-piece";
+        piece.style.left = `${Math.random() * 100}%`;
+        piece.style.animationDuration = `${Math.random() * 2 + 2}s`;
+        confettiContainer.appendChild(piece);
+      }
     };
 
     const displayNextCategory = () => {
@@ -166,6 +210,9 @@
           clearInterval(timerInterval);
           document.getElementById("nextCategory").disabled = true;
           document.getElementById("result").textContent = "Congratulations, you won!";
+          speakText("Congratulations, you won!");
+          displayConfetti();
+          addResetButton();
         } else if (availableCategories.length > 0) {
           const category = randomCategory();
           document.getElementById("category").textContent = `Category: ${category}`;
@@ -180,10 +227,17 @@
       const chosenLetter = randomLetter();
       document.getElementById("letter").textContent = `Letter: ${chosenLetter}`;
       speakText(`Your letter is ${chosenLetter}`);
-      document.getElementById("startTimer").disabled = false; // Enable the start timer button
+      document.getElementById("startTimer").disabled = false;
     });
 
     document.getElementById("startTimer").addEventListener("click", () => {
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+        document.getElementById("startTimer").textContent = "Start Timer";
+        return;
+      }
+
       availableCategories = [...categoryGroups];
       score = 0;
       document.getElementById("counter").textContent = `Score: ${score}`;
@@ -194,12 +248,13 @@
       document.getElementById("category").textContent = `Category: ${category}`;
       speakText(category);
       startCountdown();
+      document.getElementById("startTimer").textContent = "Stop Timer";
     });
 
     document.getElementById("nextCategory").addEventListener("click", displayNextCategory);
 
     document.body.addEventListener("click", (event) => {
-      if (event.target.id !== "pickLetter" && event.target.id !== "startTimer" && event.target.id !== "nextCategory") {
+      if (!["pickLetter", "startTimer", "nextCategory"].includes(event.target.id)) {
         displayNextCategory();
       }
     });
