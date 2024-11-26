@@ -14,11 +14,12 @@
     .container {
       max-width: 600px;
       margin: auto;
-      min-height: 100vh; /* Ensures the container fills the screen */
+      min-height: 100vh;
       display: flex;
       flex-direction: column;
-      justify-content: center;
+      justify-content: flex-start;
       align-items: center;
+      padding-top: 20px;
     }
     button {
       padding: 10px 20px;
@@ -44,24 +45,26 @@
       color: gray;
       margin-top: 20px;
     }
-    .confetti {
+    .fireworks-container {
       position: fixed;
+      top: 0;
+      left: 0;
       width: 100%;
       height: 100%;
       pointer-events: none;
-      overflow: hidden;
-      z-index: 10;
+      display: none;
     }
-    .confetti-piece {
+    .firework {
       position: absolute;
       width: 10px;
       height: 10px;
-      background: #ff0;
-      animation: fall linear infinite;
+      background: radial-gradient(circle, red, yellow, transparent);
+      border-radius: 50%;
+      animation: firework-explosion 1s linear infinite;
     }
-    @keyframes fall {
-      0% { transform: translateY(-50px) rotate(0deg); opacity: 1; }
-      100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+    @keyframes firework-explosion {
+      0% { transform: scale(1); opacity: 1; }
+      100% { transform: scale(5); opacity: 0; }
     }
   </style>
 </head>
@@ -77,10 +80,10 @@
     <p class="counter" id="counter">Score: 0</p>
     <button id="nextCategory" disabled>Next Category</button>
     <p id="result"></p>
-    <p id="instructions">Tap anywhere below to move to the next category!</p>
+    <p id="instructions">Tap anywhere to go to the next category!</p>
   </div>
 
-  <div class="confetti" id="confetti"></div>
+  <div class="fireworks-container" id="fireworks"></div>
 
   <script>
     const letters = "ABCDEFGHIJKLMNOPRST".split("");
@@ -88,7 +91,7 @@
       ["Actor", "Male celebrity"],
       ["Actress", "Female celebrity"],
       ["Musical artist", "Female singer", "Male singer"],
-      ["Alcoholic drink", "An alcoholic drink", "Something you drink", "Drink", "Non-alcoholic drink"],
+      ["Alcoholic drink", "An alcoholic drink", "Something you drink", "Drink"],
       ["Animal", "A four-legged animal"],
       ["Band", "Famous band"],
       ["Boys name", "Girls name"],
@@ -97,56 +100,22 @@
       ["Book title", "Book"],
       ["Car make or model"],
       ["City in the UK", "A UK city"],
-      ["City outside of the UK", "Foreign city", "European city"],
+      ["City outside of the UK", "Foreign city"],
       ["Clothing item", "Something you wear"],
       ["Country", "A foreign country"],
       ["Dog breed", "A breed of dog"],
-      ["Electrical appliance", "An electrical item", "Kitchen appliance"],
       ["Film", "Movie title"],
-      ["Fish", "Type of fish"],
       ["Fictional character", "Cartoon character"],
-      ["Food item", "Something you eat", "Vegetarian food"],
-      ["Football team"],
-      ["Fruit", "Fruit or vegetable", "A fruit or vegetable", "Fruit", "Vegetable"],
+      ["Fruit", "Vegetable"],
       ["Job title", "An occupation"],
-      ["Language", "Foreign Language"],
-      ["Musical instrument", "Instrument"],
-      ["Plant or flower", "Type of plant", "Type of flower"],
-      ["School subject", "A school subject"],
-      ["Shop", "A shop on a high street"],
-      ["Song title", "A title of a song"],
-      ["Sport", "A sport or hobby"],
-      ["Sport personality", "A sports star"],
-      ["TV Show"],
-      ["Word ending in 'ing'", "A word ending in E D", "Word ending in L Y"],
-      ["3-letter word"],
-      ["4-letter word"],
-      ["5-letter word"]
+      ["Sport", "A sport or hobby"]
     ];
 
     let availableCategories = [...categoryGroups];
     let score = 0;
-    let timerInterval;
+    let timerInterval = null;
     let timeLeft = 30;
-
-    const playBuzzer = () => {
-      const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-      const oscillator = audioContext.createOscillator();
-      const gainNode = audioContext.createGain();
-
-      oscillator.type = "square";
-      oscillator.frequency.setValueAtTime(440, audioContext.currentTime);
-      oscillator.connect(gainNode);
-      gainNode.connect(audioContext.destination);
-
-      gainNode.gain.setValueAtTime(0.5, audioContext.currentTime);
-      oscillator.start();
-
-      setTimeout(() => {
-        oscillator.stop();
-        audioContext.close();
-      }, 500);
-    };
+    let gameOver = false;
 
     const randomLetter = () => letters[Math.floor(Math.random() * letters.length)];
     const randomCategory = () => {
@@ -155,14 +124,6 @@
       const category = categoryGroup[Math.floor(Math.random() * categoryGroup.length)];
       availableCategories.splice(groupIndex, 1);
       return category;
-    };
-
-    const speakText = (text) => {
-      const speech = new SpeechSynthesisUtterance(text);
-      speech.lang = "en-US";
-      speech.rate = 1.2;
-      speech.pitch = 1;
-      window.speechSynthesis.speak(speech);
     };
 
     const startCountdown = () => {
@@ -175,80 +136,84 @@
         timerDisplay.textContent = `Time Left: ${timeLeft}s`;
 
         if (timeLeft <= 0) {
-          clearInterval(timerInterval);
-          playBuzzer();
-          document.getElementById("nextCategory").disabled = true;
-          document.getElementById("result").textContent = "Time's up! Try again.";
-          addResetButton();
+          endGame("Time's up! Try again.");
         }
       }, 1000);
     };
 
+    const stopCountdown = () => {
+      clearInterval(timerInterval);
+      timerInterval = null;
+    };
+
+    const endGame = (message) => {
+      gameOver = true;
+      stopCountdown();
+      document.getElementById("result").textContent = message;
+      document.getElementById("nextCategory").disabled = true;
+      document.getElementById("startTimer").textContent = "Start Timer";
+      document.getElementById("startTimer").disabled = true;
+      if (message === "Congratulations, you won!") displayFireworks();
+      addResetButton();
+    };
+
     const addResetButton = () => {
       const resetButton = document.createElement("button");
-      resetButton.textContent = "Try Again";
+      resetButton.textContent = "Reset";
       resetButton.addEventListener("click", () => location.reload());
       document.body.appendChild(resetButton);
     };
 
-    const displayConfetti = () => {
-      const confettiContainer = document.getElementById("confetti");
-      for (let i = 0; i < 100; i++) {
-        const piece = document.createElement("div");
-        piece.className = "confetti-piece";
-        piece.style.left = `${Math.random() * 100}%`;
-        piece.style.animationDuration = `${Math.random() * 2 + 2}s`;
-        confettiContainer.appendChild(piece);
+    const displayFireworks = () => {
+      const fireworksContainer = document.getElementById("fireworks");
+      fireworksContainer.style.display = "block";
+      for (let i = 0; i < 30; i++) {
+        const firework = document.createElement("div");
+        firework.className = "firework";
+        firework.style.left = `${Math.random() * 100}%`;
+        firework.style.top = `${Math.random() * 100}%`;
+        firework.style.animationDuration = `${Math.random() + 0.5}s`;
+        fireworksContainer.appendChild(firework);
+        setTimeout(() => fireworksContainer.removeChild(firework), 1500);
       }
     };
 
     const displayNextCategory = () => {
-      if (timeLeft > 0) {
-        score++;
-        document.getElementById("counter").textContent = `Score: ${score}`;
-        if (score === 10) {
-          clearInterval(timerInterval);
-          document.getElementById("nextCategory").disabled = true;
-          document.getElementById("result").textContent = "Congratulations, you won!";
-          speakText("Congratulations, you won!");
-          displayConfetti();
-          addResetButton();
-        } else if (availableCategories.length > 0) {
-          const category = randomCategory();
-          document.getElementById("category").textContent = `Category: ${category}`;
-          speakText(category);
-        } else {
-          document.getElementById("result").textContent = "No more categories left!";
-        }
+      if (gameOver) return;
+
+      score++;
+      document.getElementById("counter").textContent = `Score: ${score}`;
+      if (score === 10) {
+        endGame("Congratulations, you won!");
+      } else if (availableCategories.length > 0) {
+        document.getElementById("category").textContent = `Category: ${randomCategory()}`;
+      } else {
+        endGame("No more categories left!");
       }
     };
 
     document.getElementById("pickLetter").addEventListener("click", () => {
       const chosenLetter = randomLetter();
       document.getElementById("letter").textContent = `Letter: ${chosenLetter}`;
-      speakText(`Your letter is ${chosenLetter}`);
+      document.getElementById("pickLetter").textContent = "Change Letter";
       document.getElementById("startTimer").disabled = false;
     });
 
     document.getElementById("startTimer").addEventListener("click", () => {
       if (timerInterval) {
-        clearInterval(timerInterval);
-        timerInterval = null;
+        stopCountdown();
         document.getElementById("startTimer").textContent = "Start Timer";
-        return;
+      } else {
+        availableCategories = [...categoryGroups];
+        score = 0;
+        gameOver = false;
+        document.getElementById("counter").textContent = `Score: ${score}`;
+        document.getElementById("result").textContent = "";
+        document.getElementById("nextCategory").disabled = false;
+        document.getElementById("startTimer").textContent = "Reset";
+        document.getElementById("category").textContent = `Category: ${randomCategory()}`;
+        startCountdown();
       }
-
-      availableCategories = [...categoryGroups];
-      score = 0;
-      document.getElementById("counter").textContent = `Score: ${score}`;
-      document.getElementById("result").textContent = "";
-      document.getElementById("nextCategory").disabled = false;
-
-      const category = randomCategory();
-      document.getElementById("category").textContent = `Category: ${category}`;
-      speakText(category);
-      startCountdown();
-      document.getElementById("startTimer").textContent = "Stop Timer";
     });
 
     document.getElementById("nextCategory").addEventListener("click", displayNextCategory);
