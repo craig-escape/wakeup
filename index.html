@@ -117,6 +117,14 @@
     let timeLeft = 30;
     let gameOver = false;
 
+    const speakText = (text) => {
+      const speech = new SpeechSynthesisUtterance(text);
+      speech.lang = "en-US";
+      speech.rate = 1.2;
+      speech.pitch = 1;
+      window.speechSynthesis.speak(speech);
+    };
+
     const randomLetter = () => letters[Math.floor(Math.random() * letters.length)];
     const randomCategory = () => {
       const groupIndex = Math.floor(Math.random() * availableCategories.length);
@@ -153,7 +161,10 @@
       document.getElementById("nextCategory").disabled = true;
       document.getElementById("startTimer").textContent = "Start Timer";
       document.getElementById("startTimer").disabled = true;
-      if (message === "Congratulations, you won!") displayFireworks();
+      if (message === "Congratulations, you won!") {
+        speakText("Congratulations, you won!");
+        displayFireworks();
+      }
       addResetButton();
     };
 
@@ -186,7 +197,9 @@
       if (score === 10) {
         endGame("Congratulations, you won!");
       } else if (availableCategories.length > 0) {
-        document.getElementById("category").textContent = `Category: ${randomCategory()}`;
+        const category = randomCategory();
+        document.getElementById("category").textContent = `Category: ${category}`;
+        speakText(category);
       } else {
         endGame("No more categories left!");
       }
@@ -197,6 +210,7 @@
       document.getElementById("letter").textContent = `Letter: ${chosenLetter}`;
       document.getElementById("pickLetter").textContent = "Change Letter";
       document.getElementById("startTimer").disabled = false;
+      speakText(`Your letter is ${chosenLetter}`);
     });
 
     document.getElementById("startTimer").addEventListener("click", () => {
@@ -211,7 +225,9 @@
         document.getElementById("result").textContent = "";
         document.getElementById("nextCategory").disabled = false;
         document.getElementById("startTimer").textContent = "Reset";
-        document.getElementById("category").textContent = `Category: ${randomCategory()}`;
+        const category = randomCategory();
+        document.getElementById("category").textContent = `Category: ${category}`;
+        speakText(category);
         startCountdown();
       }
     });
