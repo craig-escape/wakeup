@@ -45,26 +45,32 @@
       color: gray;
       margin-top: 20px;
     }
-    .fireworks-container {
+    .confetti-container {
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
+      overflow: hidden;
       pointer-events: none;
-      display: none;
     }
-    .firework {
+    .confetti {
       position: absolute;
       width: 10px;
       height: 10px;
-      background: radial-gradient(circle, red, yellow, transparent);
-      border-radius: 50%;
-      animation: firework-explosion 1s linear infinite;
+      background-color: red;
+      opacity: 0.8;
+      animation: confetti-fall 2s linear infinite;
     }
-    @keyframes firework-explosion {
-      0% { transform: scale(1); opacity: 1; }
-      100% { transform: scale(5); opacity: 0; }
+    @keyframes confetti-fall {
+      0% {
+        transform: translateY(0) rotate(0deg);
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(100vh) rotate(360deg);
+        opacity: 0;
+      }
     }
   </style>
 </head>
@@ -83,7 +89,7 @@
     <p id="instructions">Tap anywhere to go to the next category!</p>
   </div>
 
-  <div class="fireworks-container" id="fireworks"></div>
+  <div class="confetti-container" id="confetti"></div>
 
   <script>
     const letters = "ABCDEFGHIJKLMNOPRST".split("");
@@ -91,23 +97,13 @@
       ["Actor", "Male celebrity"],
       ["Actress", "Female celebrity"],
       ["Musical artist", "Female singer", "Male singer"],
-      ["Alcoholic drink", "An alcoholic drink", "Something you drink", "Drink"],
+      ["Alcoholic drink", "Drink"],
       ["Animal", "A four-legged animal"],
       ["Band", "Famous band"],
       ["Boys name", "Girls name"],
       ["Bird", "Type of bird"],
       ["Body part", "A body part"],
       ["Book title", "Book"],
-      ["Car make or model"],
-      ["City in the UK", "A UK city"],
-      ["City outside of the UK", "Foreign city"],
-      ["Clothing item", "Something you wear"],
-      ["Country", "A foreign country"],
-      ["Dog breed", "A breed of dog"],
-      ["Film", "Movie title"],
-      ["Fictional character", "Cartoon character"],
-      ["Fruit", "Vegetable"],
-      ["Job title", "An occupation"],
       ["Sport", "A sport or hobby"]
     ];
 
@@ -123,6 +119,24 @@
       speech.rate = 1.2;
       speech.pitch = 1;
       window.speechSynthesis.speak(speech);
+    };
+
+    const playBuzzer = () => {
+      const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+
+      oscillator.type = "square";
+      oscillator.frequency.setValueAtTime(440, audioContext.currentTime);
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+
+      gainNode.gain.setValueAtTime(0.5, audioContext.currentTime);
+      oscillator.start();
+      setTimeout(() => {
+        oscillator.stop();
+        audioContext.close();
+      }, 500);
     };
 
     const randomLetter = () => letters[Math.floor(Math.random() * letters.length)];
@@ -145,6 +159,7 @@
 
         if (timeLeft <= 0) {
           endGame("Time's up! Try again.");
+          playBuzzer();
         }
       }, 1000);
     };
@@ -161,32 +176,29 @@
       document.getElementById("nextCategory").disabled = true;
       document.getElementById("startTimer").textContent = "Start Timer";
       document.getElementById("startTimer").disabled = true;
+
       if (message === "Congratulations, you won!") {
         speakText("Congratulations, you won!");
-        displayFireworks();
+        displayConfetti();
       }
-      addResetButton();
     };
 
-    const addResetButton = () => {
-      const resetButton = document.createElement("button");
-      resetButton.textContent = "Reset";
-      resetButton.addEventListener("click", () => location.reload());
-      document.body.appendChild(resetButton);
-    };
+    const displayConfetti = () => {
+      const confettiContainer = document.getElementById("confetti");
+      confettiContainer.innerHTML = ""; // Clear old confetti
 
-    const displayFireworks = () => {
-      const fireworksContainer = document.getElementById("fireworks");
-      fireworksContainer.style.display = "block";
-      for (let i = 0; i < 30; i++) {
-        const firework = document.createElement("div");
-        firework.className = "firework";
-        firework.style.left = `${Math.random() * 100}%`;
-        firework.style.top = `${Math.random() * 100}%`;
-        firework.style.animationDuration = `${Math.random() + 0.5}s`;
-        fireworksContainer.appendChild(firework);
-        setTimeout(() => fireworksContainer.removeChild(firework), 1500);
+      for (let i = 0; i < 100; i++) {
+        const confetti = document.createElement("div");
+        confetti.className = "confetti";
+        confetti.style.left = `${Math.random() * 100}%`;
+        confetti.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 50%)`;
+        confetti.style.animationDelay = `${Math.random() * 2}s`;
+        confettiContainer.appendChild(confetti);
       }
+
+      setTimeout(() => {
+        confettiContainer.innerHTML = ""; // Clear confetti after 5 seconds
+      }, 5000);
     };
 
     const displayNextCategory = () => {
